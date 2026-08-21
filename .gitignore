@@ -1,5 +1,5 @@
-
-
+#PORQUE HAY TANTAS COSAS QUE IGNORAAAR
+#RAAAAAAHHHHHHHHHH
 *.wpc
 *lpr
 *.jou
@@ -15,3 +15,16 @@
 *.ini
 *.pb
 *.txt
+*.sh
+*.tcl
+*.wdb
+*.o
+*.c
+*.dbg
+*.mem
+*.reloc
+*.rtti
+*.svtype
+*.type
+*.xdbg
+/project_1/project_1.sim/sim_1/behav/xsim/xsim.dir

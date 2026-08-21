@@ -1,4 +1,4 @@
-`timescale 1ns / 1ps
+`timescale 10ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
 // Company: 
 // Engineer: 
@@ -20,15 +20,32 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module flopr_tb();
-    logic d, clk, reset, q;
+module flopr_tb;
 
-    flopr dut(d, clk, reset, q);
-    
-    // apply inputs one at a time
-    initial begin
-    d = 0; clk = 0; reset = 0; #10;
-    d = 1; #10;
-    d = 1; reset = 0; #10;
+    logic clk;
+    logic reset;
+    logic [63:0] d;
+    logic [63:0] q;
+
+    flopr #(.N(64)) dut (
+        .clk(clk),
+        .reset(reset),
+        .d(d),
+        .q(q)
+    );
+
+    // Clock de 100 MHz -> período 10 ns
+    always begin
+        #5 clk = ~clk;
     end
+
+    initial begin
+        clk = 0;
+        reset = 1;
+        d = 0;
+
+        // acá empiezan los casos de prueba
+
+    end
+
 endmodule

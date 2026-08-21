@@ -1,4 +1,4 @@
-`timescale 1ns / 1ps
+`timescale 10ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
 // Company: 
 // Engineer: 
@@ -20,12 +20,12 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module flopr #(parameter N = 64)(input logic [N-1:0] d, input logic clk, input logic reset, output logic [N-1:0] q);
-    always @(posedge reset)
-    begin
-        if(reset)
-            q <= 1'b0;
-        else
-            q <= d;
-    end
+module flopr #(parameter N = 64)(input  logic clk, input  logic reset, input  logic [N-1:0] d, output logic [N-1:0] q);
+    always @(posedge clk or posedge reset)
+        begin
+            if (reset)
+                q <= '0;
+            else
+                q <= d;
+        end
 endmodule
