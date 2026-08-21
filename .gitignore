@@ -1,0 +1,17 @@
+
+
+*.wpc
+*lpr
+*.jou
+*.log
+*.str
+*.db
+*.wdf
+*.bat
+*.prj
+*.v
+*.sdb
+*.rlx
+*.ini
+*.pb
+*.txt
