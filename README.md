@@ -16,7 +16,7 @@ Repo de las actividades individuales que vayamos a ir haciendo en la materia
 - Programar el componente en si (el "nombre del componente".sv)
 - Programar el test bench del componente (el "nombre del componente"++"_tb".sv)
   - Instanciar el componente
-  - Crear la tabla de preueba con los valores significativos
+  - Crear la tabla de prueba con los valores significativos
 - Correr el linter (a la izquierda)
 - Correr la simulacion comportamental (checkear que los valores den!)
 - Repetir!
@@ -31,4 +31,3 @@ Repo de las actividades individuales que vayamos a ir haciendo en la materia
   - la cartilla de legv8 tiene utilidad kekw
   - para **numeros/constantes** se usa `size ' num_type number`
   - para **variables** se usa `#(parameter nombre = numero)`
-  - 

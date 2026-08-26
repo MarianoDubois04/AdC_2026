@@ -28,3 +28,4 @@
 *.type
 *.xdbg
 /project_1/project_1.sim/sim_1/behav/xsim/xsim.dir
+/SingleCycleProcessor/SingleCycleProcessor.sim/sim_1
