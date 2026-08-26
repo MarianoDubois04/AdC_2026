@@ -21,30 +21,31 @@
 
 
 module flopr_tb;
-
+    //init vars
     logic clk;
     logic reset;
     logic [63:0] d;
     logic [63:0] q;
-
-    flopr #(.N(64)) dut (
+    //init self
+    flopr #(.N(64)) dut ( //el #(.N(64)) es para definirle la cantidad de bits o cables, como les sea mas facil de entender
         .clk(clk),
         .reset(reset),
         .d(d),
         .q(q)
     );
 
-    // Clock de 100 MHz -> período 10 ns
+    // Clock de 100 MHz -> período 10 ns (pd: checkeen arriba que `timescale 1ns / 10ps siempre)
     always begin
         #5 clk = ~clk;
     end
-
+    //iniciamos los casos de prueba!
     initial begin
+        //def vars
         clk = 0;
         reset = 1;
         d = 0;
 
-        // acá empiezan los casos de prueba
+        // aca empiezan los casos de prueba 
         #10 d = 64'h1111_1111_1111_1111;
         #10 d = 64'h2222_2222_2222_2222;
         #10 d = 64'h3333_3333_3333_3333;
@@ -57,7 +58,7 @@ module flopr_tb;
         #10 d = 64'habcd_ef12_3456_7890;
         #10 d = 64'h1010_1010_1010_1010;
 
-        #20 $stop;
+        #10 $stop; //tmb podria ser un finish envez de stop
 
     end
 
