@@ -25,7 +25,7 @@ module alu(
     input logic [63:0] b,
     input logic [3:0] ALUcontrol,
     output logic [63:0] result,
-    output logic zero
+    output logic zero //no hace falta que tenga [] porque ocupa 1 solo bit
     );
 
     always_comb begin
@@ -35,9 +35,9 @@ module alu(
             4'b0010 : result = a + b;
             4'b0011 : result = a - b;
             4'b0111 : result = b;
-            default : result = '0;
+            default : result = '0; //forma facil de asignar a N bits que ocupe algo un solo numero
         endcase
-        zero = (result == '0);
+        zero = (result == '0); //puede resolver expresiones de esta forma
     end
 endmodule
 
