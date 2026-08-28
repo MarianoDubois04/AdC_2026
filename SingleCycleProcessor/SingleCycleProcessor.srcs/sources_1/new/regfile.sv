@@ -73,7 +73,7 @@ module regfile (
         end
     end
     //async write!
-    assign rd1 = regs[ra1];
-    assign rd2 = regs[ra2];
+    assign rd1 = (ra1 == 5'b11111) ? 64'h0000_0000_0000_0000 : regs[ra1];
+    assign rd2 = (ra2 == 5'b11111) ? 64'h0000_0000_0000_0000 : regs[ra2];
     
 endmodule

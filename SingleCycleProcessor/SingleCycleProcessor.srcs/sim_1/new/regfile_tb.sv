@@ -91,21 +91,43 @@ module regfile_tb;
         wd3 = 0;
         rd1 = 0;
         rd2 = 0;
-
-        #1 for(int i = 0; i < 30; i++)begin
-            #1 if((regs_tb[ra1] == rd1) & (regs_tb[ra2] == rd2))begin
-                $display("registro %d bien", rd1);
-                ra1 <= ra1 + 1;
-                ra2 <= ra2 + 1;
+        // test de input output correcta
+        #5 for(int i = 0; i < 30; i++)begin
+            #5 if((regs_tb[ra1] == rd1) & (regs_tb[ra2] == rd2))begin
+                $display("registro %d bien", i);
+                ra1 <= i; // esta operacion deberia ser ilegal lol
+                ra2 <= i;
             end
             else begin
-                $display("registro %d mal", rd2);
-                ra1 <= ra1 + 1;
-                ra2 <= ra2 + 1;
+                $display("registro %d mal", i);
+                ra1 <= i;
+                ra2 <= i;
             end
         end
-
-
+        // funciona el mecanismo de escritura de registros
+        #4 we3 <= 1; wa3 <= 5'b00001; wd3 <= 64'h0000_0000_0000_0002; ra1 <= 5'b00001;
+        #6 if(rd1 == 64'h0000_0000_0000_0002)begin
+            $display("el write salio bien");
+        end
+        else begin
+            $display("el write salio mal");
+        end
+        // el we3 en 0 hace que no se escriban nuevos valores
+        #4 we3 <= 0; wa3 <= 5'b00001; wd3 <= 64'h0000_0000_0000_0001; ra1 <= 5'b00001;
+        #6 if(rd1 == 64'h0000_0000_0000_0002)begin
+            $display("el we3 funciona bien");
+        end
+        else begin
+            $display("el we3 funciona mal");
+        end
+        // xzr no se puede sobrescribir
+        #4 we3 <= 1; wa3 <= 5'b11111; wd3 <= 64'h0000_0000_0000_0002; ra1 <= 5'b11111;
+        #6 if(rd1 == 64'h0000_0000_0000_0000)begin
+            $display("el xzr funciona bien y no se sobre escribe");
+        end
+        else begin
+            $display("el xzr se sobrescribio :(");
+        end
 
         #10 $stop; //tmb podria ser un finish envez de stop
 
