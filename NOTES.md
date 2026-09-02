@@ -39,6 +39,8 @@ el output aumenta (en eficiencia de tiempo) de 1 instruccion por ciclo a 1 instr
 
 eso si, para ejecutar la instruccion por primera vez, el primer output sale 1 ciclo despues y el resto cada 1/5 de ciclo recien
 
+**N = cantidad de instrucciones**
+
 formula de ganancia de eficiencia ***Tp = K * T_reloj_cpu + (n-1) * T_reloj_cpu***
 
 ganancia de velocidad ***Ganancia = (T_sin_pipeline)/(T_con_pipeline) = K*(aprox)**
@@ -53,4 +55,43 @@ en los peligros de o problemas de intentar pipelinear serian las alineaciones de
 
 ### Forwading(Bypassing)
 
-envez de guardar el resultado en memoria, lo pasas derecho a la siguiente entrada de instruccion (ergo, le pasas un cable desde la salida de la alu al input de la alu). Ayuda a resolver un poco el problema de data hazard. Pero no por completo si aun ni se hizo el calculo y ya se necesita
+envez de guardar el resultado en memoria, lo pasas derecho a la siguiente entrada de instruccion (ergo, le pasas un cable desde la salida de la alu al input de la alu). Ayuda a resolver un poco el problema de data hazard. Pero no por completo si aun ni se hizo el calculo y ya se necesita.
+
+Aun con forwarding a veces hay que stallear los accesos a memoria/escrituras a memoria
+
+## 2/9 Hazards
+
+### Stalling
+
+Stallear es importante porque sino no hay forma de prevenir los memory hazards que se pueden generar aun con forwarding, en este caso cuando X instruccion se ejecute si esta es una de las que puede generar un memory hazard hace que si los registros involucrados aparecen en una de las siguientes operaciones, se stallea la siguiente instruccion
+
+### Control Hazard
+
+### Interfaces
+
+vieja arquitectura tenia 1 puerto directo del procesador al dispositivo(incluyendo memorias?), actualmente tenes una memoria de por medio y le clavas un bus directo(realmente se ve como una matriz configurable, pero es un simple detalle) al cpu y despues cada entrada tiene un modulo para paralelizarla. 
+
+Standar i/o va a memoria si el cable M/IO == 0 y i/o si es 1, devuelve palabra de 1 byte!(intel x86 la usa(las instrucciones de acceso a memoria y i/o son distintas ldurio y ldur normal no hacen lo mismo!) La otra forma es la memory-mapped, que la i/o esta en memoria entonces es buscarla en la region de memoria que se encargue de i/o(arm y arquis actuales la usan(existe solo un metodo de acceso a ambos, ldur etc.)). El espacio direccionable es el mismo, pero uno hace las cosas por hardware y complejizando sus instrucciones y cpu y la otra todo lo contrario.
+
+Dependiendo el modulo que uno quiera usar de i/o se pueden usar distintos sistemas de Operarlos; 
+
+ - Polling device 
+- Interruption driven 
+- Direct Memory Access
+
+
+Capaz una grafica necesita mas bien usar DMA pero un teclado polling.
+
+#### Polling
+
+Polling consume mucho en ciclos de procesador, muucho tiempo esperando nada y haciendo preguntas al dope, la ventaja es el syncronismo(ejemplo, grabar audio, siempre pregunta si sigue grabando audio y mandando samples de sonido). Polling claramente es muy efectivo en latencias para la i/o(lit hay un cable/senial de hw de interrupcion) pero literalmente matas al resto de cosas a la mitad.
+
+#### Interrupciones
+
+Si hay interrupcion, el procesador busca en el **vector de interrupciones** el codigo que tiene que correr, este proceso/codigo de interrupcion se llama **ISR(Interruption Service Routine)**. Este vector de interrupciones tiene un lugar fijado en sistemas chicos y en sistemas modernos y mas grandes se usa vecotrizado sobre la memoria y se le agrega un ack para confirmar que la interrupcion sea resuelta? (matar un programa corta directamente el acceso/escritura a memoria por ejemplo). 
+
+Existen interrupciones enmascarables y no enmascarables, las enmascarables es basicamente ignorables, las otras obviamente lo opuesto, se las suele llamar traps a las de este segundo tipo (tambien todo lo que sean exceptions, estan mapeadas fisicamente en el hw y no es de i/o sino de errores dentro del cpu). Que pasa si hay muchas interrupciones a la vez? hacemos un arbitraje. Este arbitraje sigue el orden de prioridades de interrupciones y para los de menor categoria un orden de "tiempo" en el que segun en que orden lei la interrupcion (software polling). El arbitro es un modulo de hw que tiene mapeado donde esta cada isr en el vector de interrupciones. 
+
+Vamos a tener un registro extra para guardar el pc cuando haya excepciones (ELR exception link register), tambien vamos a tener una contabilidad de excepciones y log de las mismas en un (ESR). 
+
+Checkear las filminas por las modificaciones a la ISA
