@@ -65,7 +65,7 @@ module regfile_tb;
         64'h0000_0000_0000_0000
     };
     //init self
-    regfile #(.N(64)) dut ( //el #(.N(64)) es para definirle la cantidad de bits o cables, como les sea mas facil de entender
+    regfile dut ( //el #(.N(64)) es para definirle la cantidad de bits o cables, como les sea mas facil de entender
         .clk(clk),
         .we3(we3),
         .ra1(ra1),
@@ -92,37 +92,42 @@ module regfile_tb;
         rd1 = 0;
         rd2 = 0;
         // test de input output correcta
-        #5 for(int i = 0; i < 30; i++)begin
-            #5 if((regs_tb[ra1] == rd1) & (regs_tb[ra2] == rd2))begin
+        for(int i = 0; i < 32; i++)begin
+            ra1 <= i; // esta operacion deberia ser ilegal lol
+            ra2 <= i;
+            @(negedge clk); //esto asegura que checkeemos siempre despues del flanco descendente de clk
+            if((regs_tb[ra1] == rd1) & (regs_tb[ra2] == rd2))begin
                 $display("registro %d bien", i);
-                ra1 <= i; // esta operacion deberia ser ilegal lol
-                ra2 <= i;
             end
             else begin
                 $display("registro %d mal", i);
-                ra1 <= i;
-                ra2 <= i;
             end
         end
         // funciona el mecanismo de escritura de registros
-        #4 we3 <= 1; wa3 <= 5'b00001; wd3 <= 64'h0000_0000_0000_0002; ra1 <= 5'b00001;
-        #6 if(rd1 == 64'h0000_0000_0000_0002)begin
+        we3 <= 1; wa3 <= 5'b00001; wd3 <= 64'h0000_0000_0000_0002; ra1 <= 5'b00001;
+        @(posedge clk);
+        #1; //me aseguro de que checkee despues del flanco positivo
+        if(rd1 == 64'h0000_0000_0000_0002)begin
             $display("el write salio bien");
         end
         else begin
             $display("el write salio mal");
         end
         // el we3 en 0 hace que no se escriban nuevos valores
-        #4 we3 <= 0; wa3 <= 5'b00001; wd3 <= 64'h0000_0000_0000_0001; ra1 <= 5'b00001;
-        #6 if(rd1 == 64'h0000_0000_0000_0002)begin
+        we3 <= 0; wa3 <= 5'b00001; wd3 <= 64'h0000_0000_0000_0001; ra1 <= 5'b00001;
+        @(posedge clk);
+        #1;
+        if(rd1 == 64'h0000_0000_0000_0002)begin
             $display("el we3 funciona bien");
         end
         else begin
             $display("el we3 funciona mal");
         end
         // xzr no se puede sobrescribir
-        #4 we3 <= 1; wa3 <= 5'b11111; wd3 <= 64'h0000_0000_0000_0002; ra1 <= 5'b11111;
-        #6 if(rd1 == 64'h0000_0000_0000_0000)begin
+        we3 <= 1; wa3 <= 5'b11111; wd3 <= 64'h0000_0000_0000_0002; ra1 <= 5'b11111;
+        @(posedge clk);
+        #1;
+        if(rd1 == 64'h0000_0000_0000_0000)begin
             $display("el xzr funciona bien y no se sobre escribe");
         end
         else begin
