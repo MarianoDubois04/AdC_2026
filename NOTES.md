@@ -134,4 +134,41 @@ Tenemos nuevas instrucciones! (las primeras 2 obligatorias de implementar)
   - SVC #inmm 16
 - MSR (move from general purpouse register to system register) al revez que MSR, de registro normal a registro de excepciones
 
+
 El "lab 3" es aplicar las modificaciones de exceptions al procesador (ver filminas para las modificaciones de la ISA). Solo vamos a tener 2 tipos de exceptions, opcode invalido y instruccion invalida (y pedido de exception?) modificar el valor default para los opcode que no sean validos.
+
+## 9/9
+
+eSTOY SIN BATERIA ASI QUE VEREMOS QUE ANOTO. PASAR A LIMPIO LO DE LA CARPETA
+
+## 11/9 Pipeline implementado
+
+veremos STUR y Branch no usar la parte de write back. la ganancia la calculamos diviendo tiempo sin pipeline sobre tiempo con pipeline. Ejemplo 1000 instrucciones, sin pipe = 109 nano seg x 1000 =  109 micro seg / con pipe 200 ns + 999 x 40 ns = 40.160 micro seg
+
+## 25/9 mas optimizacion (estructura de memorias)
+
+vamos a ver como hacer predicciones piolas creo? Vamos a ver caches al fin. 
+
+### **Localidad temporal y espacial**. **Jerarquia de memorias**
+
+existen distintas memorias, nube -> hdd -> ssd -> nvme m.2 -> dynamic ram -> static ram -> cache L3 -> L2 ->L1 -> cpu reg, los datos que mas frecuentemente se usen los vas mandando mas arriba en la jerarquia de memorias. La localidad temporal es que tan frecuentemente consulto un dato, la espacial es que tan cerca esta de otro dato que se uso. Ahora en vez de buscar solo 1 palabra de mem traigo 1 bloque de memoria (aka linea) practicamente. La MMU se encarga de traele esos datos cercanos sin consumirle tiempo extra al CPU(la MMU esta entre la dram y la sram o caches).
+
+### metricas de efectividad y prediccion de MMU
+
+hit ratio: si u dato que trajiste es usado hits/accesses (ideal seria 100% normal es 95%)es mejor (hit = estaba en memoria el dato) si no esta en memoria el dato, hay que ir a buscar el dato en memoria mas arriba y se llama miss y el miss ratio lo sacamos como 1 - ht ratio (si hit ratio = 95% => miss ratio = 5%)
+
+### DRAM
+
+la ram accede a memoria en filas. Burst mode le permite mandar una cadena de palabras de una fila de forma rapida (tambien hay columnas, no le preste atencion xd). Se hace una pipeline de mem. A su vez refresca memoria a la vez que lleva datos. Esta el DDR o double data rate. QDR es cuando tenemos rafagas separadas??. Existe el buffering de ram, el sincronismo de DRAM etc
+
+### Calculos de rendimiento
+
+ni idea, por ver la qualy xd
+
+### Address subdivision
+
+siempre puedo hacer un ram con 1 word de ancho y indexarla en totales, por ejemplo 1 word ancho y 2**32 de adresses, pero tambien puedo aprovechar y hacer rams mas anchas de por ejemplo 4 words de ancho y 2 ** 30 addresses y con un multiplexor sacas el dato que realmente necesitas. Existe la cache asocativa que tiene s tag al lado del dato, lo que pierdo en bits de indice lo gano en bits de tag?  Mientras mas asociativa, menos misses teoricamente, pero mas chico el dato que traes y menos direcciones direccionables
+
+### Caching! (Practico)
+
+contexto de acceso es los datos que tienen proximidad temporal o espacial de datos, como la localidad/contexto decae a medida que la cantidad de adatos crece entonces no hace falta tener cosas en las memorias tann rapidas en tanta cantidad entonces ahi entra en juego el costo rendimiento de la jerarquia de memorias(principio de localidad de referencias). El procesador no fiderencia entre memoria de ram o cache, no sabe las diderencias, cuando se trata de accesos la cache controla cpmpletamente el flujo de dadoos, tanto los accesos ca ram como si no, cuando hay iun hit en cache la cache bloquea los buffers de datos, si hau un miss entonces anre los buffers a la ram y pide la info en bloque. La memoria de la cache es sram, asociativa, guarda lineas,, tiene una etiqueta asociada, ua linea de cache tiene que tener  tamanio de 1 vloque de ram, ergo, si traigo 1 bloque de 4 palabras de ram, la cache tiene 1 linea con un ancho de 4 palabras, o 128b o 256bdependiendo del tamanio de palabra del procesador. Como encontramos entonces el dato en cache si esta todo en una linea, el tag, el valid bit, una cache puede estar vacia, pero la memoria no, puede tener datos e sean puros 0 pero ifual es un datos, 1 en cache significa que tiene datos relevantes, 0 significa que no tiene datos significativos. **El criterio de correspondencia directo** hace que se mapee de forma directa en partes de la cache, ergo, 000 en cache es 000 en ram y cuando se nos acaba lo direccionable hacemos modulo con n como la cantidad direccionable de la cache para dividir la ram (block address) modulo (#block in cache). La limitante es tener 2 bloques que les corresponderia el mismo lugar en cache, entonces no podes tener 2 datos distintos pero que den el mismo modulo en el lado de la cache que necesito, te va a dar misses constantes. La parte buena es que es facil de tracear cualquier dato, el tag se convierte en por ejemplo los ultimos 3 digitos menos significativos y solo tengo que checquear los bits mas significativos cuando quiera saber si tengo un hit o miss, despreciable. Con el otro criterio de correspondencia que es completamente asociativo tengo que tener un comparador por cada linea de cache del tamania del tag. A la cache no le importan los bits menos significativos porque ve solo en bloques, los bits de linea de la cache van a crecer o decrecer en base al tamanio de la cache, los bits mas significativos tienen el tag. Ver el grafico de las filminas de Direct mapped cache. Full asociactiva no se puede por la cantidad de comparadores que tendria que tener en un espacio muy limitado El nuevo criterio es n way set associative. El nuevo criterio te permite elegir mas vias para que puedas almacenar cosas que tengan el mismo modulo en otra parte solamente agregan un numero minimo de comparadores y simplemente traemos conjuntos de lineas, traes la 0 de 4 modulos de cache con todos tags distintos **calculo = (block numer) modulo (#sets in cache)** con n comparadores
